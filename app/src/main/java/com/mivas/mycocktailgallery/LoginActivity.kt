@@ -17,11 +17,12 @@ import java.util.*
 import kotlinx.android.synthetic.main.activity_login.*
 import android.widget.Toast
 import com.mivas.mycocktailgallery.model.DriveFile
+import com.mivas.mycocktailgallery.util.Constants
 
 
 class LoginActivity : AppCompatActivity() {
 
-    private var driveFiles: List<DriveFile>? = null
+    private lateinit var driveFiles: List<DriveFile>
 
     companion object {
         private const val REQUEST_CODE_SIGN_IN = 1
@@ -48,9 +49,10 @@ class LoginActivity : AppCompatActivity() {
             /*driveHelper?.readCfg("1mDLN5dur9Gg1bRJyFk28Ety4I5-JHac9")?.addOnSuccessListener { task ->
                 Log.w("asd", task)
             }*/
-            /*DriveHelper.deleteFile("1Fqo3z1-9X2FrZcfRBkIZV-oQlB2Xsf8D").addOnSuccessListener { task ->
-                //Log.w("asd", task)
-            }*/
+            /*DriveHelper.deleteFile("1C4mHnd1gibXP5Q6vP3qLfUvx6y86FQUD").addOnSuccessListener { Log.w("asd", "asd1") }
+            DriveHelper.deleteFile("1Fqo3z1-9X2FrZcfRBkIZV-oQlB2Xsf8D").addOnSuccessListener { Log.w("asd", "asd2") }
+            DriveHelper.deleteFile("1mDLN5dur9Gg1bRJyFk28Ety4I5-JHac9").addOnSuccessListener { Log.w("asd", "asd3") }*/
+
         }
     }
 
@@ -71,7 +73,7 @@ class LoginActivity : AppCompatActivity() {
                 .setApplicationName("My Cocktail Gallery")
                 .build()
             DriveHelper.drive = googleDriveService
-            //queryDriveFiles()
+            queryDriveFiles()
         }.addOnFailureListener {
             Toast.makeText(this, "Unable to sign in to Google", Toast.LENGTH_SHORT).show()
         }
@@ -80,27 +82,59 @@ class LoginActivity : AppCompatActivity() {
     private fun queryDriveFiles() {
         DriveHelper.queryFiles().addOnSuccessListener { task ->
             driveFiles = task.files.map { DriveFile(it.id, it.name, it.mimeType) }
-            if (configFileExists()) {
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                finish()
+            if (folderExists()) {
+                DriveHelper.folderId = getFolderId()
+                readCfg()
             } else {
-                createCfg()
+                DriveHelper.createBaseFolder().addOnSuccessListener {
+                    queryDriveFiles()
+                }.addOnFailureListener {
+                    Toast.makeText(this, "Unable to create base folder", Toast.LENGTH_SHORT).show()
+                }
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Unable to get Drive files", Toast.LENGTH_SHORT).show()
         }
     }
 
+    private fun readCfg() {
+        if (configFileExists()) {
+            DriveHelper.configId = getConfigFileId()
+            DriveHelper.readCfg(getConfigFileId()).addOnSuccessListener {
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
+                    putExtra(Constants.EXTRA_COCKTAILS, it)
+                })
+                finish()
+            }.addOnFailureListener {
+                Toast.makeText(this, "Unable to read cfg file", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            createCfg()
+        }
+    }
+
     private fun createCfg() {
-        DriveHelper.createCfg().addOnSuccessListener {
-            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-            finish()
+        DriveHelper.createCfg(getFolderId()).addOnSuccessListener {
+            DriveHelper.saveCfg(it, "{\"cocktails\":[]}").addOnSuccessListener {
+                queryDriveFiles()
+            }.addOnFailureListener {
+                Toast.makeText(this, "Unable to update cfg file", Toast.LENGTH_SHORT).show()
+            }
         }.addOnFailureListener {
             Toast.makeText(this, "Unable to create cfg file", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun configFileExists() = !driveFiles.isNullOrEmpty() && driveFiles!!.any { it.name == DriveHelper.CONFIG_FILE }
+    private fun folderExists() = driveFiles.any { it.name == DriveHelper.FOLDER }
+    private fun configFileExists() = driveFiles.any { it.name == DriveHelper.CONFIG_FILE }
+    private fun getConfigFileId(): String {
+        val configFile = driveFiles.find { it.name == DriveHelper.CONFIG_FILE }
+        return configFile?.id ?: ""
+    }
+    private fun getFolderId(): String {
+        val folder = driveFiles.find { it.name == DriveHelper.FOLDER }
+        return folder?.id ?: ""
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

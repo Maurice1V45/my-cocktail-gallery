@@ -19,11 +19,11 @@ class CocktailsAdapter(private val context: Context, private val cocktails: List
         val cocktail = cocktails[position]
         with(viewHolder) {
             Picasso.get()
-                .load("https://drive.google.com/thumbnail?id=1Fqo3z1-9X2FrZcfRBkIZV-oQlB2Xsf8D")
+                .load("https://drive.google.com/thumbnail?id=${cocktail.id}")
                 .resize(250, 250)
                 .centerCrop()
                 .into(image)
-            title.text = "Old Fashioned"
+            title.text = cocktail.title
         }
     }
 

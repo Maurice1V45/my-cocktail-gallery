@@ -1,27 +1,27 @@
 package com.mivas.mycocktailgallery
 
-import android.R.attr.content
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.database.Cursor
-import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.util.Log
+import android.widget.Toast
+import com.google.gson.Gson
+import com.mivas.mycocktailgallery.model.Cocktail
+import com.mivas.mycocktailgallery.model.Cocktails
+import com.mivas.mycocktailgallery.util.Constants
 import com.mivas.mycocktailgallery.util.DriveHelper
 import kotlinx.android.synthetic.main.activity_add_cocktail.*
 import java.io.File
 import java.io.IOException
-import android.R.attr.data
-import com.mivas.mycocktailgallery.util.PathUtil
 
 
 class AddCocktailActivity : AppCompatActivity() {
 
+    private lateinit var cocktailsJson: String
     private var tempFile: File? = null
 
     companion object {
@@ -33,18 +33,23 @@ class AddCocktailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_cocktail)
 
+        cocktailsJson = intent.getStringExtra(Constants.EXTRA_COCKTAILS)
         photoButton.setOnClickListener {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (intent.resolveActivity(packageManager) != null) {
-                val photoFile = createImageFile()
-                val photoURI = FileProvider.getUriForFile(
-                    this@AddCocktailActivity,
-                    "com.mivas.mycocktailgallery.fileprovider",
-                    photoFile
-                )
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                tempFile = photoFile
-                startActivityForResult(intent, TAKE_PHOTO_REQUEST)
+            if (nameField.text.toString().isEmpty()) {
+                Toast.makeText(this, "Please type in a name", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                if (intent.resolveActivity(packageManager) != null) {
+                    val photoFile = createImageFile()
+                    val photoURI = FileProvider.getUriForFile(
+                        this@AddCocktailActivity,
+                        "com.mivas.mycocktailgallery.fileprovider",
+                        photoFile
+                    )
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    tempFile = photoFile
+                    startActivityForResult(intent, TAKE_PHOTO_REQUEST)
+                }
             }
         }
     }
@@ -56,38 +61,26 @@ class AddCocktailActivity : AppCompatActivity() {
         return File.createTempFile(imageFileName, ".jpeg", storageDir)
     }
 
-    private fun cropImage(uri: Uri) {
-        val intent = Intent("com.android.camera.action.CROP");
-
-        intent.setDataAndType(uri, "image/*");
-
-        intent.putExtra("crop", "true");
-        intent.putExtra("outputX", 180);
-        intent.putExtra("outputY", 180);
-        intent.putExtra("aspectX", 3);
-        intent.putExtra("aspectY", 4);
-        intent.putExtra("scaleUpIfNeeded", true);
-        intent.putExtra("return-data", true);
-
-        startActivityForResult(intent, CROP_PHOTO_REQUEST);
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == TAKE_PHOTO_REQUEST && resultCode == Activity.RESULT_OK) {
-            val photoURI = FileProvider.getUriForFile(
-                this@AddCocktailActivity,
-                "com.mivas.mycocktailgallery.fileprovider",
-                tempFile!!
-            )
-            DriveHelper.uploadImage("test.jpeg", tempFile!!.absolutePath).addOnSuccessListener {
-                Log.w("asd", "success")
-            }.addOnFailureListener { Log.w("asd", "failed $it") }
-            //cropImage(photoURI)
+            DriveHelper.uploadImage(nameField.text.toString(), tempFile!!.absolutePath, DriveHelper.folderId).addOnSuccessListener { fileId ->
+                    DriveHelper.makePublic(fileId).addOnSuccessListener {
+                        val cocktail = Cocktail(fileId, nameField.text.toString(), "")
+                        val cocktails = Gson().fromJson(cocktailsJson, Cocktails::class.java)
+                        cocktails.cocktails.add(cocktail)
+                        DriveHelper.saveCfg(DriveHelper.configId, Gson().toJson(cocktails)).addOnSuccessListener {
+                            Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener {
+                            Toast.makeText(this, "Failed to update config file", Toast.LENGTH_SHORT).show()
+                        }
+                    }.addOnFailureListener {
+                        Toast.makeText(this, "Failed to set file permission", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnFailureListener {
+                Toast.makeText(this, "Failed to upload the image", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    /*private fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        val file = File(contentUri.path)
-    }*/
 }
