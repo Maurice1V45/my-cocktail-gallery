@@ -1,5 +1,5 @@
 package com.mivas.mycocktailgallery.model
 
-data class Cocktails(
+data class CocktailsJson(
     val cocktails: MutableList<Cocktail>
 )

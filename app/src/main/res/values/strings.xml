@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">My Cocktail Gallery</string>
+
+    <string name="main_activity_navigation_drawer_open">Open navigation drawer</string>
+    <string name="main_activity_navigation_drawer_close">Close navigation drawer</string>
+    <string-array name="category_array">
+        <item>Non-alcoholic Drinks</item>
+        <item>Long Drinks</item>
+        <item>Soft Drinks</item>
+        <item>Medium Drinks</item>
+        <item>Strong Drinks</item>
+        <item>Shots</item>
+    </string-array>
 </resources>

@@ -3,7 +3,6 @@ package com.mivas.mycocktailgallery
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
@@ -14,13 +13,12 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.mivas.mycocktailgallery.util.DriveHelper
 import java.util.*
-import kotlinx.android.synthetic.main.activity_login.*
 import android.widget.Toast
 import com.mivas.mycocktailgallery.model.DriveFile
 import com.mivas.mycocktailgallery.util.Constants
 
 
-class LoginActivity : AppCompatActivity() {
+class LoadingActivity : AppCompatActivity() {
 
     private lateinit var driveFiles: List<DriveFile>
 
@@ -30,30 +28,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_loading)
 
         requestSignIn()
-
-        stuffButton.setOnClickListener {
-            DriveHelper.queryFiles().addOnSuccessListener { task ->
-                Log.w("asd", task.files.toString())
-            }.addOnFailureListener {
-                Log.w("asd", it)
-            }
-            /*driveHelper?.createCfg()?.addOnSuccessListener { task ->
-                Log.w("asd", task)
-            }*/
-            /*driveHelper?.saveCfg("1mDLN5dur9Gg1bRJyFk28Ety4I5-JHac9", "abc123")?.addOnSuccessListener { task ->
-                //Log.w("asd", task)
-            }*/
-            /*driveHelper?.readCfg("1mDLN5dur9Gg1bRJyFk28Ety4I5-JHac9")?.addOnSuccessListener { task ->
-                Log.w("asd", task)
-            }*/
-            /*DriveHelper.deleteFile("1C4mHnd1gibXP5Q6vP3qLfUvx6y86FQUD").addOnSuccessListener { Log.w("asd", "asd1") }
-            DriveHelper.deleteFile("1Fqo3z1-9X2FrZcfRBkIZV-oQlB2Xsf8D").addOnSuccessListener { Log.w("asd", "asd2") }
-            DriveHelper.deleteFile("1mDLN5dur9Gg1bRJyFk28Ety4I5-JHac9").addOnSuccessListener { Log.w("asd", "asd3") }*/
-
-        }
     }
 
     private fun requestSignIn() {
@@ -101,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
         if (configFileExists()) {
             DriveHelper.configId = getConfigFileId()
             DriveHelper.readCfg(getConfigFileId()).addOnSuccessListener {
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
+                startActivity(Intent(this@LoadingActivity, MainActivity::class.java).apply {
                     putExtra(Constants.EXTRA_COCKTAILS, it)
                 })
                 finish()
@@ -125,16 +102,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun folderExists() = driveFiles.any { it.name == DriveHelper.FOLDER }
+    private fun folderExists() = driveFiles.any { it.name == DriveHelper.BASE_FOLDER }
     private fun configFileExists() = driveFiles.any { it.name == DriveHelper.CONFIG_FILE }
-    private fun getConfigFileId(): String {
-        val configFile = driveFiles.find { it.name == DriveHelper.CONFIG_FILE }
-        return configFile?.id ?: ""
-    }
-    private fun getFolderId(): String {
-        val folder = driveFiles.find { it.name == DriveHelper.FOLDER }
-        return folder?.id ?: ""
-    }
+    private fun getConfigFileId() = driveFiles.find { it.name == DriveHelper.CONFIG_FILE }?.id ?: ""
+    private fun getFolderId() = driveFiles.find { it.name == DriveHelper.BASE_FOLDER }?.id ?: ""
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

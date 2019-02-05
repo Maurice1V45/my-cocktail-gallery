@@ -5,13 +5,13 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.mivas.mycocktailgallery.R
+import com.mivas.mycocktailgallery.listener.MainActivityListener
 import com.mivas.mycocktailgallery.model.Cocktail
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.grid_item_cocktail.view.*
 
-class CocktailsAdapter(private val context: Context, private val cocktails: List<Cocktail>) : RecyclerView.Adapter<CocktailsAdapter.ViewHolder>() {
+class CocktailsAdapter(private val context: Context, private val listener: MainActivityListener, var cocktails: List<Cocktail>) : RecyclerView.Adapter<CocktailsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(context).inflate(R.layout.grid_item_cocktail, parent, false))
     override fun getItemCount() = cocktails.size
@@ -20,10 +20,13 @@ class CocktailsAdapter(private val context: Context, private val cocktails: List
         with(viewHolder) {
             Picasso.get()
                 .load("https://drive.google.com/thumbnail?id=${cocktail.id}")
-                .resize(250, 250)
+                .resize(1000, 1000)
                 .centerCrop()
                 .into(image)
             title.text = cocktail.title
+            parent.setOnClickListener {
+                listener.onCocktailSelected(cocktail.id)
+            }
         }
     }
 
