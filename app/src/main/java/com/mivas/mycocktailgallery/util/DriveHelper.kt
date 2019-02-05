@@ -28,7 +28,7 @@ object DriveHelper {
 
     private val executor = Executors.newSingleThreadExecutor()
 
-    fun queryFiles(): Task<FileList> = Tasks.call(executor, Callable<FileList> {
+    fun getFiles(): Task<FileList> = Tasks.call(executor, Callable<FileList> {
         drive.files().list().setSpaces("drive").execute()
     })
 
@@ -38,7 +38,7 @@ object DriveHelper {
         googleFile.id
     })
 
-    fun saveCfg(fileId: String, content: String): Task<Unit> = Tasks.call(executor, Callable<Unit> {
+    fun updateCfg(fileId: String, content: String): Task<Unit> = Tasks.call(executor, Callable<Unit> {
         val metadata = File().setName(CONFIG_FILE)
         val contentStream = ByteArrayContent.fromString(MIME_TYPE_TEXT, content)
         drive.files().update(fileId, metadata, contentStream).execute()
@@ -53,7 +53,7 @@ object DriveHelper {
         drive.files().delete(fileId).execute()
     })
 
-    fun uploadImage(name: String, path: String, folderId: String): Task<String> = Tasks.call(executor, Callable<String> {
+    fun createImage(name: String, path: String, folderId: String): Task<String> = Tasks.call(executor, Callable<String> {
         val metadata = File().setName(name).setParents(listOf(folderId))
         val mediaContent = FileContent(MIME_TYPE_IMAGE, java.io.File(path))
         val file = drive.files().create(metadata, mediaContent).setFields("id").execute()

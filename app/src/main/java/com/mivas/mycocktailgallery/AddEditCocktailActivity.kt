@@ -62,17 +62,17 @@ class AddEditCocktailActivity : AppCompatActivity() {
             R.id.action_delete -> {
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("Delete cocktail")
-                    .setMessage("Are you sure you want to delete this cocktail?")
-                    .setPositiveButton("DELETE") { _, _ ->
-                        DriveHelper.deleteImage(selectedCocktailId).addOnSuccessListener {
-                            cocktailsJson.cocktails.remove(getCocktailById(selectedCocktailId))
-                            saveCfg()
-                        }.addOnFailureListener {
-                            Toast.makeText(this, "Failed to set delete image", Toast.LENGTH_SHORT).show()
-                        }
-                    }.setNegativeButton("CANCEL") { _, _ ->
-                        // do nothing
-                    }.show()
+                        .setMessage("Are you sure you want to delete this cocktail?")
+                        .setPositiveButton("DELETE") { _, _ ->
+                            DriveHelper.deleteImage(selectedCocktailId).addOnSuccessListener {
+                                cocktailsJson.cocktails.remove(getCocktailById(selectedCocktailId))
+                                saveCfg()
+                            }.addOnFailureListener {
+                                Toast.makeText(this, "Failed to set delete image", Toast.LENGTH_SHORT).show()
+                            }
+                        }.setNegativeButton("CANCEL") { _, _ ->
+                            // do nothing
+                        }.show()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -107,10 +107,10 @@ class AddEditCocktailActivity : AppCompatActivity() {
                 ingredientsField.setText(it.ingredients)
                 categorySpinner.setSelection(adapter.getPosition(it.category))
                 Picasso.get()
-                    .load("https://drive.google.com/thumbnail?id=${it.id}")
-                    .resize(1000, 1000)
-                    .centerCrop()
-                    .into(photoButton)
+                        .load("https://drive.google.com/thumbnail?id=${it.id}")
+                        .resize(1000, 1000)
+                        .centerCrop()
+                        .into(photoButton)
             }
         }
     }
@@ -124,9 +124,9 @@ class AddEditCocktailActivity : AppCompatActivity() {
                 if (intent.resolveActivity(packageManager) != null) {
                     val photoFile = createImageFile()
                     val photoURI = FileProvider.getUriForFile(
-                        this@AddEditCocktailActivity,
-                        "com.mivas.mycocktailgallery.fileprovider",
-                        photoFile
+                            this@AddEditCocktailActivity,
+                            "com.mivas.mycocktailgallery.fileprovider",
+                            photoFile
                     )
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     tempFile = photoFile
@@ -138,26 +138,27 @@ class AddEditCocktailActivity : AppCompatActivity() {
 
     private fun uploadImage() {
         val cropped = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), CROPPED_FILE)
-        DriveHelper.uploadImage(nameField.text.toString(), cropped.absolutePath, DriveHelper.folderId)
-            .addOnSuccessListener { fileId ->
-                DriveHelper.makePublic(fileId).addOnSuccessListener {
-                    updateCfg(fileId)
+        DriveHelper.createImage(nameField.text.toString(), cropped.absolutePath, DriveHelper.folderId)
+                .addOnSuccessListener { fileId ->
+                    DriveHelper.makePublic(fileId).addOnSuccessListener {
+                        updateCfg(fileId)
+                    }.addOnFailureListener {
+                        Toast.makeText(this, "Failed to set file permission", Toast.LENGTH_SHORT).show()
+                    }
                 }.addOnFailureListener {
-                    Toast.makeText(this, "Failed to set file permission", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to upload the image", Toast.LENGTH_SHORT).show()
                 }
-            }.addOnFailureListener {
-                Toast.makeText(this, "Failed to upload the image", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun saveCfg() {
-        DriveHelper.saveCfg(DriveHelper.configId, ConverterUtils.toJson(cocktailsJson))
-            .addOnSuccessListener {
-                setResult(Activity.RESULT_OK)
-                finish()
-            }.addOnFailureListener {
-                Toast.makeText(this, "Failed to update config file", Toast.LENGTH_SHORT).show()
-            }
+        val json = ConverterUtils.toJson(cocktailsJson)
+        DriveHelper.updateCfg(DriveHelper.configId, json)
+                .addOnSuccessListener {
+                    setResult(Activity.RESULT_OK, Intent().putExtra(Constants.EXTRA_COCKTAILS, json))
+                    finish()
+                }.addOnFailureListener {
+                    Toast.makeText(this, "Failed to update config file", Toast.LENGTH_SHORT).show()
+                }
     }
 
     private fun updateCfg(fileId: String) {
@@ -171,10 +172,10 @@ class AddEditCocktailActivity : AppCompatActivity() {
             }
         } else {
             val cocktail = Cocktail(
-                fileId,
-                nameField.text.toString(),
-                ingredientsField.text.toString(),
-                categorySpinner.selectedItem.toString()
+                    fileId,
+                    nameField.text.toString(),
+                    ingredientsField.text.toString(),
+                    categorySpinner.selectedItem.toString()
             )
             cocktailsJson.cocktails.add(cocktail)
         }
@@ -197,10 +198,10 @@ class AddEditCocktailActivity : AppCompatActivity() {
             photoChanged = true
             val cropped = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), CROPPED_FILE)
             Picasso.get()
-                .load(cropped)
-                .resize(1000, 1000)
-                .centerCrop()
-                .into(photoButton)
+                    .load(cropped)
+                    .resize(1000, 1000)
+                    .centerCrop()
+                    .into(photoButton)
         }
     }
 

@@ -25,10 +25,10 @@ class MainActivity : AppCompatActivity(), MainActivityListener {
     private lateinit var cocktailsJsonString: String
     private lateinit var cocktails: List<Cocktail>
     private lateinit var cocktailsAdapter: CocktailsAdapter
+    private var selectedCategory = "All"
 
     companion object {
-        private const val REQUEST_CODE_ADD_COCKTAIL = 1
-        private const val REQUEST_CODE_EDIT_COCKTAIL = 2
+        private const val REQUEST_CODE_ADD_EDIT_COCKTAIL = 1
     }
 
     override fun onBackPressed() {
@@ -45,9 +45,9 @@ class MainActivity : AppCompatActivity(), MainActivityListener {
         when (item?.itemId) {
             android.R.id.home -> onBackPressed()
             R.id.action_add -> {
-                startActivityForResult(Intent(this@MainActivity, AddEditCocktailActivity::class.java).apply {
+                startActivityForResult(Intent(this, AddEditCocktailActivity::class.java).apply {
                     putExtra(Constants.EXTRA_COCKTAILS, cocktailsJsonString)
-                }, REQUEST_CODE_ADD_COCKTAIL)
+                }, REQUEST_CODE_ADD_EDIT_COCKTAIL)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -80,16 +80,29 @@ class MainActivity : AppCompatActivity(), MainActivityListener {
     private fun initListeners() {
     }
 
+    private fun refreshCocktails() {
+        cocktailsAdapter.cocktails = if (selectedCategory == "All") cocktails else cocktails.filter { it.category == selectedCategory }
+        cocktailsAdapter.notifyDataSetChanged()
+    }
+
     override fun onCocktailSelected(id: String) {
         startActivityForResult(Intent(this@MainActivity, AddEditCocktailActivity::class.java).apply {
             putExtra(Constants.EXTRA_COCKTAILS, cocktailsJsonString)
             putExtra(Constants.EXTRA_SELECTED_COCKTAIL, id)
-        }, REQUEST_CODE_EDIT_COCKTAIL)
+        }, REQUEST_CODE_ADD_EDIT_COCKTAIL)
     }
 
     override fun onCategorySelected(category: String) {
-        cocktailsAdapter.cocktails = if (category == "All") cocktails else cocktails.filter { it.category == category }
-        cocktailsAdapter.notifyDataSetChanged()
+        selectedCategory = category
         drawerLayout.closeDrawer(Gravity.START)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_ADD_EDIT_COCKTAIL && data != null) {
+            cocktailsJsonString = data.getStringExtra(Constants.EXTRA_COCKTAILS)
+            cocktails = ConverterUtils.toObject(cocktailsJsonString).cocktails
+            refreshCocktails()
+        }
     }
 }

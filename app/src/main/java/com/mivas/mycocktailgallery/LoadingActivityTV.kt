@@ -1,7 +1,7 @@
 package com.mivas.mycocktailgallery
 
+import android.app.Activity
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
@@ -22,7 +22,7 @@ import com.mivas.mycocktailgallery.util.Constants
 import kotlinx.android.synthetic.main.activity_loading.*
 
 
-class LoadingActivity : AppCompatActivity() {
+class LoadingActivityTV : Activity() {
 
     private lateinit var driveFiles: List<DriveFile>
 
@@ -92,7 +92,7 @@ class LoadingActivity : AppCompatActivity() {
         if (configFileExists()) {
             DriveHelper.configId = getConfigFileId()
             DriveHelper.readCfg(getConfigFileId()).addOnSuccessListener {
-                startActivity(Intent(this, MainActivity::class.java).apply {
+                startActivity(Intent(this, MainActivityTV::class.java).apply {
                     putExtra(Constants.EXTRA_COCKTAILS, it)
                 }).also { finish() }
             }.addOnFailureListener {
