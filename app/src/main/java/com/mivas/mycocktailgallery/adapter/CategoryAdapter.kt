@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.list_item_category.view.*
 
 class CategoryAdapter(private val context: Context, private val listener: MainActivityListener) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
+    private var selectedPosition = 0
     private val categoryArray = context.resources.getStringArray(R.array.category_array)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(context).inflate(R.layout.list_item_category, parent, false))
@@ -19,7 +20,10 @@ class CategoryAdapter(private val context: Context, private val listener: MainAc
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         with(viewHolder) {
             title.text = if (position == 0) "All" else categoryArray[position - 1]
+            parent.isSelected = selectedPosition == position
             parent.setOnClickListener {
+                selectedPosition = viewHolder.adapterPosition
+                notifyDataSetChanged()
                 listener.onCategorySelected(title.text.toString())
             }
         }

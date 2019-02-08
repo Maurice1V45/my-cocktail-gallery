@@ -24,6 +24,7 @@ class CocktailsAdapter(private val context: Context, private val listener: MainA
                 .centerCrop()
                 .into(image)
             title.text = cocktail.title
+            ingredients.text = cocktail.ingredients
             parent.setOnClickListener {
                 listener.onCocktailSelected(cocktail.id)
             }
@@ -33,6 +34,7 @@ class CocktailsAdapter(private val context: Context, private val listener: MainA
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val image = view.image!!
         val title = view.title!!
+        val ingredients = view.ingredients!!
         val parent = view
     }
 

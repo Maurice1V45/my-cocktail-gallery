@@ -89,7 +89,7 @@ class AddEditCocktailActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = if (selectedCocktailId.isEmpty()) "Add Cocktail" else "Edit Cocktail"
+        supportActionBar?.title = if (selectedCocktailId.isEmpty()) getString(R.string.add_edit_cocktail_activity_title_add) else getString(R.string.add_edit_cocktail_activity_title_edit)
 
         initViews()
         initListeners()
@@ -103,7 +103,7 @@ class AddEditCocktailActivity : AppCompatActivity() {
 
         if (selectedCocktailId.isNotEmpty()) {
             getCocktailById(selectedCocktailId)?.let {
-                nameField.setText(it.title)
+                titleField.setText(it.title)
                 ingredientsField.setText(it.ingredients)
                 categorySpinner.setSelection(adapter.getPosition(it.category))
                 Picasso.get()
@@ -117,8 +117,8 @@ class AddEditCocktailActivity : AppCompatActivity() {
 
     private fun initListeners() {
         photoButton.setOnClickListener {
-            if (nameField.text.toString().isEmpty()) {
-                Toast.makeText(this, "Please type in a name", Toast.LENGTH_SHORT).show()
+            if (titleField.text.toString().isEmpty()) {
+                Toast.makeText(this, R.string.toast_no_title, Toast.LENGTH_SHORT).show()
             } else {
                 val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 if (intent.resolveActivity(packageManager) != null) {
@@ -138,15 +138,15 @@ class AddEditCocktailActivity : AppCompatActivity() {
 
     private fun uploadImage() {
         val cropped = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), CROPPED_FILE)
-        DriveHelper.createImage(nameField.text.toString(), cropped.absolutePath, DriveHelper.folderId)
+        DriveHelper.createImage(titleField.text.toString(), cropped.absolutePath, DriveHelper.folderId)
                 .addOnSuccessListener { fileId ->
                     DriveHelper.makePublic(fileId).addOnSuccessListener {
                         updateCfg(fileId)
                     }.addOnFailureListener {
-                        Toast.makeText(this, "Failed to set file permission", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.toast_file_permission_error, Toast.LENGTH_SHORT).show()
                     }
                 }.addOnFailureListener {
-                    Toast.makeText(this, "Failed to upload the image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.toast_upload_image_error, Toast.LENGTH_SHORT).show()
                 }
     }
 
@@ -157,7 +157,7 @@ class AddEditCocktailActivity : AppCompatActivity() {
                     setResult(Activity.RESULT_OK, Intent().putExtra(Constants.EXTRA_COCKTAILS, json))
                     finish()
                 }.addOnFailureListener {
-                    Toast.makeText(this, "Failed to update config file", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.toast_update_config_file_error, Toast.LENGTH_SHORT).show()
                 }
     }
 
@@ -166,14 +166,14 @@ class AddEditCocktailActivity : AppCompatActivity() {
             val cocktail = cocktailsJson.cocktails.find { it.id == selectedCocktailId }
             cocktail?.run {
                 id = fileId
-                title = nameField.text.toString()
+                title = titleField.text.toString()
                 ingredients = ingredientsField.text.toString()
                 category = categorySpinner.selectedItem.toString()
             }
         } else {
             val cocktail = Cocktail(
                     fileId,
-                    nameField.text.toString(),
+                    titleField.text.toString(),
                     ingredientsField.text.toString(),
                     categorySpinner.selectedItem.toString()
             )

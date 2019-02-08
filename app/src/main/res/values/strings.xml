@@ -7,6 +7,20 @@
     <string name="toast_read_config_file_error">Failed to read config file</string>
     <string name="toast_create_config_file_error">Failed to create config file</string>
     <string name="toast_update_config_file_error">Failed to update config file</string>
+    <string name="toast_file_permission_error">Failed to set file permission</string>
+    <string name="toast_upload_image_error">Failed to upload image</string>
+    <string name="toast_no_title">Please type in a a title</string>
+
+    <string name="menu_add">Add</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_delete">Delete</string>
+
+    <string name="main_activity_title">My Cocktails</string>
+    <string name="add_edit_cocktail_activity_title_add">Add Cocktail</string>
+    <string name="add_edit_cocktail_activity_title_edit">Edit Cocktail</string>
+
+    <string name="hint_title">Title</string>
+    <string name="hint_ingredients">Ingredients</string>
 
 
     <string name="main_activity_navigation_drawer_open">Open navigation drawer</string>
