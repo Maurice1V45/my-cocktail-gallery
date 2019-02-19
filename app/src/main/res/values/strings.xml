@@ -22,6 +22,10 @@
     <string name="hint_title">Title</string>
     <string name="hint_ingredients">Ingredients</string>
 
+    <string name="message_saving_cocktail">Saving cocktail…</string>
+    <string name="message_deleting_cocktail">Deleting cocktail…</string>
+    <string name="message_cropping_photo">Cropping photo…</string>
+
 
     <string name="main_activity_navigation_drawer_open">Open navigation drawer</string>
     <string name="main_activity_navigation_drawer_close">Close navigation drawer</string>
@@ -50,4 +54,5 @@
     <!-- Error messages -->
     <string name="error_fragment_message">An error occurred</string>
     <string name="dismiss_error">Dismiss</string>
+    <string name="title_activity_tv_test">Leanback TvTest Title</string>
 </resources>

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/black"
     android:layout_height="match_parent"
+    android:background="@color/greyed"
     tools:context=".AddEditCocktailActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -30,10 +30,10 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
         android:hint="@string/hint_title"
         android:inputType="textCapWords"
+        android:textColor="@color/black"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/ingredientsField"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -48,10 +48,10 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
         android:hint="@string/hint_ingredients"
         android:inputType="textCapSentences"
+        android:textColor="@color/black"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/categorySpinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -62,29 +62,51 @@
         android:id="@+id/categorySpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:textColor="@color/white"
         android:textSize="24sp"
-        android:layout_marginTop="8dp"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintBottom_toTopOf="@+id/photoButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ingredientsField" />
 
-    <ImageView
+    <View
         android:id="@+id/photoButton"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="32dp"
+        android:background="@drawable/selector_camera"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/selector_camera"
-        android:scaleType="centerInside"
-        android:src="@drawable/icon_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/categorySpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/categorySpinner">
+    </View>
+
+    <ImageView
+        android:id="@+id/photoIcon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/icon_camera"
+        app:layout_constraintBottom_toBottomOf="@+id/photoButton"
+        app:layout_constraintEnd_toEndOf="@+id/photoButton"
+        app:layout_constraintStart_toStartOf="@+id/photoButton"
+        app:layout_constraintTop_toTopOf="@+id/photoButton" />
+
+    <ImageView
+        android:id="@+id/photoView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/photoButton" />
 
 </android.support.constraint.ConstraintLayout>

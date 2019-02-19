@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity(), MainActivityListener {
 
     override fun onCategorySelected(category: String) {
         selectedCategory = category
+        refreshCocktails()
         drawerLayout.closeDrawer(Gravity.START)
     }
 

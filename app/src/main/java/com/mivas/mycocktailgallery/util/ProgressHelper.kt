@@ -1,4 +1,4 @@
-package com.brainfactory.buffl.view
+package com.mivas.mycocktailgallery.util
 
 import android.app.ProgressDialog
 import android.content.Context

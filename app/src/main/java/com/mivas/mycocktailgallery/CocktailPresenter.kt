@@ -18,27 +18,28 @@ import android.graphics.drawable.Drawable
 import android.support.v17.leanback.widget.ImageCardView
 import android.support.v17.leanback.widget.Presenter
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.view.ViewGroup
 
 import com.bumptech.glide.Glide
+import com.mivas.mycocktailgallery.model.Cocktail
+import com.squareup.picasso.Picasso
 import kotlin.properties.Delegates
 
-/**
- * A CardPresenter is used to generate Views and bind Objects to them on demand.
- * It contains an ImageCardView.
- */
-class CardPresenter : Presenter() {
-    private var mDefaultCardImage: Drawable? = null
-    private var sSelectedBackgroundColor: Int by Delegates.notNull()
-    private var sDefaultBackgroundColor: Int by Delegates.notNull()
+class CocktailPresenter : Presenter() {
+    private var defaultCardImage: Drawable? = null
+    private var selectedBackgroundColor: Int by Delegates.notNull()
+    private var defaultBackgroundColor: Int by Delegates.notNull()
+
+    companion object {
+        private val CARD_WIDTH = 400
+        private val CARD_HEIGHT = 400
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup): Presenter.ViewHolder {
-        Log.d(TAG, "onCreateViewHolder")
 
-        sDefaultBackgroundColor = ContextCompat.getColor(parent.context, R.color.default_background)
-        sSelectedBackgroundColor = ContextCompat.getColor(parent.context, R.color.selected_background)
-        mDefaultCardImage = ContextCompat.getDrawable(parent.context, R.drawable.movie)
+        defaultBackgroundColor = ContextCompat.getColor(parent.context, R.color.black)
+        selectedBackgroundColor = ContextCompat.getColor(parent.context, R.color.selected_background)
+        defaultCardImage = ContextCompat.getDrawable(parent.context, R.drawable.movie)
 
         val cardView = object : ImageCardView(parent.context) {
             override fun setSelected(selected: Boolean) {
@@ -54,24 +55,20 @@ class CardPresenter : Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
-        val movie = item as Movie
+        val cocktail = item as Cocktail
         val cardView = viewHolder.view as ImageCardView
 
-        Log.d(TAG, "onBindViewHolder")
-        if (movie.cardImageUrl != null) {
-            cardView.titleText = movie.title
-            cardView.contentText = movie.studio
-            cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
-            Glide.with(viewHolder.view.context)
-                .load(movie.cardImageUrl)
-                .centerCrop()
-                .error(mDefaultCardImage)
-                .into(cardView.mainImageView)
-        }
+        cardView.titleText = cocktail.title
+        cardView.contentText = cocktail.ingredients
+        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
+        Picasso.get()
+            .load("https://drive.google.com/thumbnail?id=${cocktail.id}")
+            .resize(1000, 1000)
+            .centerCrop()
+            .into(cardView.mainImageView)
     }
 
     override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {
-        Log.d(TAG, "onUnbindViewHolder")
         val cardView = viewHolder.view as ImageCardView
         // Remove references to images so that the garbage collector can free up memory
         cardView.badgeImage = null
@@ -79,17 +76,11 @@ class CardPresenter : Presenter() {
     }
 
     private fun updateCardBackgroundColor(view: ImageCardView, selected: Boolean) {
-        val color = if (selected) sSelectedBackgroundColor else sDefaultBackgroundColor
+        val color = if (selected) selectedBackgroundColor else defaultBackgroundColor
         // Both background colors should be set because the view's background is temporarily visible
         // during animations.
         view.setBackgroundColor(color)
         view.setInfoAreaBackgroundColor(color)
     }
 
-    companion object {
-        private val TAG = "CardPresenter"
-
-        private val CARD_WIDTH = 313
-        private val CARD_HEIGHT = 176
-    }
 }
